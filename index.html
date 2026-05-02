@@ -13,7 +13,7 @@
             --glass-border: rgba(255, 255, 255, 0.1);
             --btn-bg: rgba(255, 255, 255, 0.05);
             --btn-hover: rgba(255, 255, 255, 0.1);
-            --accent-color: #f59e0b; /* Warna Amber Modern */
+            --accent-color: #f59e0b;
             --accent-hover: #fbbf24;
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
@@ -33,13 +33,17 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            /* justify-content center bisa memotong konten jika layar pendek, 
+               kita gunakan padding agar konten tetap aman saat di-scroll */
+            justify-content: center; 
             background: var(--bg-gradient);
-            padding: 20px;
-            overflow: hidden;
+            padding: 40px 20px;
+            /* Ubah hidden menjadi auto agar bisa di-scroll di HP pendek */
+            overflow-y: auto; 
+            overflow-x: hidden;
         }
 
-        /* --- Layar Animasi Pembuka (Splash Screen) --- */
+        /* --- Splash Screen --- */
         #splash-screen {
             position: fixed;
             top: 0;
@@ -78,7 +82,7 @@
             100% { transform: translateY(0); opacity: 1; filter: blur(0); letter-spacing: 8px; }
         }
 
-        /* --- Konten Utama Aplikasi --- */
+        /* --- Main Content --- */
         .app-content {
             opacity: 0;
             display: flex;
@@ -95,7 +99,6 @@
             transform: scale(1);
         }
 
-        /* Bodi Kalkulator */
         .calculator {
             width: 100%;
             background: var(--calc-bg);
@@ -108,7 +111,6 @@
             margin-bottom: 20px;
         }
 
-        /* Tampilan Layar Angka */
         .display {
             width: 100%;
             margin-bottom: 25px;
@@ -133,10 +135,8 @@
             font-size: clamp(2.2rem, 10vw, 3.4rem);
             font-weight: 500;
             line-height: 1.1;
-            transition: font-size 0.2s ease;
         }
 
-        /* Grid Tombol */
         .buttons-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -171,33 +171,18 @@
             background: rgba(255, 255, 255, 0.15);
         }
 
-        /* Tombol Khusus */
-        .operator {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--accent-color);
-            font-size: 1.6rem;
+        .operator { background: rgba(245, 158, 11, 0.1); color: var(--accent-color); font-size: 1.6rem; }
+        .equals { 
+            background: var(--accent-color); 
+            grid-column: span 2; 
+            aspect-ratio: auto; 
+            color: #020617; 
+            font-weight: 600; 
+            box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.3); 
         }
+        .equals:hover { background: var(--accent-hover); }
+        .clear { color: #f87171; background: rgba(248, 113, 113, 0.08); }
 
-        .equals {
-            background: var(--accent-color);
-            grid-column: span 2;
-            aspect-ratio: auto;
-            color: #020617;
-            font-weight: 600;
-            box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.3);
-        }
-
-        .equals:hover {
-            background: var(--accent-hover);
-            box-shadow: 0 15px 25px -5px rgba(245, 158, 11, 0.4);
-        }
-
-        .clear {
-            color: #f87171;
-            background: rgba(248, 113, 113, 0.08);
-        }
-
-        /* Label Identitas */
         .developed-by {
             color: var(--text-secondary);
             font-size: 0.85rem;
@@ -205,33 +190,22 @@
             letter-spacing: 1px;
             opacity: 0.8;
             margin-top: 10px;
+            padding-bottom: 20px;
         }
 
-        .developed-by span {
-            font-weight: 600;
-            color: var(--accent-color);
-        }
+        .developed-by span { font-weight: 600; color: var(--accent-color); }
 
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; visibility: hidden; }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <!-- Animasi Pembuka -->
     <div id="splash-screen">
         <div class="welcome-text">diaww</div>
         <div class="welcome-sub">CALCULATOR</div>
     </div>
 
-    <!-- Konten Utama -->
     <div class="app-content" id="main-content">
         <div class="calculator">
             <div class="display">
@@ -266,85 +240,61 @@
             </div>
         </div>
 
-        <div class="developed-by">
-            Developed by <span>diaww</span>
-        </div>
+        <div class="developed-by">Developed by <span>diaww</span></div>
     </div>
 
     <script>
-        // Logika Waktu Intro
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
                 splash.style.animation = 'fadeOut 0.8s ease forwards';
-                
-                const content = document.getElementById('main-content');
-                content.classList.add('active');
+                document.getElementById('main-content').classList.add('active');
             }, 2800);
         });
 
-        // Mesin Suara (Web Audio API)
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playClickSound() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
-
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
             oscillator.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.1);
-
             gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-
             oscillator.start();
             oscillator.stop(audioCtx.currentTime + 0.1);
         }
 
-        // --- Logika Kalkulasi ---
         const currentDisplay = document.getElementById('current-operand');
         const previousDisplay = document.getElementById('previous-operand');
-        
         let currentInput = '0';
         let previousInput = '';
         let currentOperator = undefined;
 
         function handleInteraction(type, value) {
             playClickSound();
-            
             switch(type) {
                 case 'number':
                     if (value === '.' && currentInput.includes('.')) return;
                     if (currentInput.length > 15) return;
                     currentInput = (currentInput === '0' && value !== '.') ? value.toString() : currentInput + value.toString();
                     break;
-                    
                 case 'operator':
                     if (currentInput === '' && previousInput === '') return;
-                    if (currentInput === '' && previousInput !== '') {
-                        currentOperator = value;
-                    } else {
-                        if (previousInput !== '') calculate();
-                        currentOperator = value;
-                        previousInput = currentInput;
-                        currentInput = '';
-                    }
+                    if (previousInput !== '' && currentInput !== '') calculate();
+                    currentOperator = value;
+                    previousInput = currentInput || previousInput;
+                    currentInput = '';
                     break;
-                    
                 case 'clear':
-                    currentInput = '0';
-                    previousInput = '';
-                    currentOperator = undefined;
+                    currentInput = '0'; previousInput = ''; currentOperator = undefined;
                     break;
-                    
                 case 'delete':
-                    currentInput = currentInput.toString().slice(0, -1);
-                    if (currentInput === '' || currentInput === '-') currentInput = '0';
+                    currentInput = currentInput.toString().slice(0, -1) || '0';
                     break;
-                    
                 case 'equal':
                     calculate();
                     break;
@@ -357,7 +307,6 @@
             const prev = parseFloat(previousInput);
             const curr = parseFloat(currentInput);
             if (isNaN(prev) || isNaN(curr)) return;
-
             switch (currentOperator) {
                 case '+': result = prev + curr; break;
                 case '-': result = prev - curr; break;
@@ -366,39 +315,29 @@
                 case '%': result = prev % curr; break;
                 default: return;
             }
-            
             currentInput = typeof result === 'number' ? (Math.round(result * 1e8) / 1e8).toString() : result;
-            currentOperator = undefined;
-            previousInput = '';
+            currentOperator = undefined; previousInput = '';
         }
 
         function updateDisplay() {
             currentDisplay.innerText = formatDisplay(currentInput);
             previousDisplay.innerText = currentOperator ? `${formatDisplay(previousInput)} ${currentOperator}` : '';
-            
-            // Penyesuaian ukuran font otomatis
-            if (currentInput.length > 12) {
-                currentDisplay.style.fontSize = '1.8rem';
-            } else if (currentInput.length > 8) {
-                currentDisplay.style.fontSize = '2.4rem';
-            } else {
-                currentDisplay.style.fontSize = 'clamp(2.2rem, 10vw, 3.4rem)';
-            }
+            if (currentInput.length > 12) currentDisplay.style.fontSize = '1.8rem';
+            else if (currentInput.length > 8) currentDisplay.style.fontSize = '2.4rem';
+            else currentDisplay.style.fontSize = 'clamp(2.2rem, 10vw, 3.4rem)';
         }
 
         function formatDisplay(number) {
             if (number === 'Error') return 'Error';
-            const stringNumber = number.toString();
-            const parts = stringNumber.split('.');
-            let integerPart = !isNaN(parseFloat(parts[0])) ? parseFloat(parts[0]).toLocaleString('id-ID') : (parts[0] === '-' ? '-' : '');
+            const parts = number.toString().split('.');
+            let integerPart = !isNaN(parseFloat(parts[0])) ? parseFloat(parts[0]).toLocaleString('id-ID') : parts[0];
             return parts[1] != null ? `${integerPart},${parts[1]}` : integerPart;
         }
 
-        // Dukungan Keyboard
         window.addEventListener('keydown', e => {
             if (e.key >= 0 && e.key <= 9) handleInteraction('number', e.key);
             if (e.key === '.') handleInteraction('number', '.');
-            if (e.key === '=' || e.key === 'Enter') { e.preventDefault(); handleInteraction('equal'); }
+            if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); handleInteraction('equal'); }
             if (e.key === 'Backspace') handleInteraction('delete');
             if (e.key === 'Escape') handleInteraction('clear');
             if (['+', '-', '*', '/'].includes(e.key)) {
